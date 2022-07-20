@@ -25,7 +25,9 @@ public class jmsConsumer {
         PulsarConnectionFactory factory = new PulsarConnectionFactory(configuration);
 
         try (JMSContext context = factory.createContext()) {
-            Destination destination = context.createQueue("persistent://pwbexample/iot-sensor/sensor-temps");
+//            Destination destination = context.createQueue("persistent://pwbexample/iot-sensor/sensor-temps");
+            Destination destination = context.createQueue("persistent://pwbexample/jms-legecy/pwb-delivery-status");
+            
             try (JMSConsumer consumer = context.createConsumer(destination)) {
             	PulsarBytesMessage message = (PulsarBytesMessage) consumer.receive();
                	long length = message.getBodyLength();
