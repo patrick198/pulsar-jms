@@ -3,11 +3,14 @@ package com.pwb.pulsarjms;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.BytesMessage;
 import javax.jms.Destination;
 import javax.jms.JMSConsumer;
 import javax.jms.JMSContext;
+import javax.jms.Message;
 
 import com.datastax.oss.pulsar.jms.PulsarConnectionFactory;
+import com.datastax.oss.pulsar.jms.messages.PulsarBytesMessage;
 import com.datastax.oss.pulsar.jms.messages.PulsarTextMessage;
 
 public class jmsConsumer {
@@ -27,19 +30,22 @@ public class jmsConsumer {
         try (JMSContext context = factory.createContext()) {
            Destination destination = context.createQueue("persistent://pwbexample/jms-legecy/pwb-iot-status");
 		   JMSConsumer consumer = context.createConsumer(destination);
-//  Code for consuming and printing a BytesMessage		   
-//            	PulsarBytesMessage message = (PulsarBytesMessage) consumer.receive();
-//             	long length = message.getBodyLength();
-//				byte[] content=new byte[(int)length];
-//				message.readBytes(content);
-//				String sContent = new String(content,"UTF-8");
-//                System.out.printf("Consumer message: %s Length %d \n", sContent, length);
-            	PulsarTextMessage message = (PulsarTextMessage) consumer.receive();
-            	System.out.printf("Consumer message: %s Length %d \n", message.getText(), message.getText().length());
-                message.acknowledge();
-                consumer.close();
-                System.exit(0);
-            }
+		   Message msg = consumer.receive();
+		   if (msg instanceof BytesMessage) {
+			//  Code for consuming and printing a BytesMessage		   
+            	long length = ((BytesMessage) msg).getBodyLength();
+				byte[] content=new byte[(int)length];
+				((BytesMessage) msg).readBytes(content);
+				String sContent = new String(content,"UTF-8");
+                System.out.printf("Consumer message: %s Length %d \n", sContent, length);
+		   } else {
+            	System.out.printf("Consumer message: %s Length %d \n", ((PulsarTextMessage) msg).getText(), ((PulsarTextMessage) msg).getText().length());
+		   }
+           msg.acknowledge();
+           consumer.close();
+           System.exit(0);
+
+        }
         catch (Exception e) {
 				System.err.println("Error creating queue factory: ");
 				e.printStackTrace();

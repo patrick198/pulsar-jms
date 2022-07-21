@@ -22,9 +22,8 @@ public class jmsProducer {
         PulsarConnectionFactory factory = new PulsarConnectionFactory(configuration);
 
         try (JMSContext context = factory.createContext()) {
-//          Destination destination = context.createQueue("persistent://pwbexample/iot-sensor/sensor-temps");
             Destination destination = context.createQueue("persistent://pwbexample/iot-sensor/sensor-temps");
-            Message msg = context.createTextMessage("Temp 90;Status=0;Battery=10");
+            Message msg = context.createTextMessage("Temp 90;Status=0;Battery=0");
             context.createProducer().send(destination, msg);
             System.out.printf("Producer message sent\n");
             context.close();
